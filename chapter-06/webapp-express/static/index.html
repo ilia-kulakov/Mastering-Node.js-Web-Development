@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <title>City Skyline > Object</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet" />
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 document
@@ -13,7 +15,7 @@
                 for (let i = 0; i < 10_000; i++) {
                     payload += `Payload Message: ${i}\n`;
                 }
-                const response = await fetch('/read', {
+                const response = await fetch('/read/text', {
                     method: 'Post',
                     body: payload,
                 });
@@ -25,7 +27,9 @@
         </script>
     </head>
     <body>
-        <button id="btn">Send Request</button>
+        <img src="city.png" style="width:100%; display: block; margin-bottom: 2px;" alt="city skyline">
+        <button id="btn"  class="btn btn-primary my-2">Text > Send Request</button>
         <div id="msg"></div>
+        <div id="body"></div>
     </body>
 </html>
