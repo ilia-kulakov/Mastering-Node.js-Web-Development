@@ -1,10 +1,44 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="bundle.js"></script>
+        <script src="/bundle.js"></script>
         <link href="css/bootstrap.min.css" rel="stylesheet" />
     </head>
     <body>
-        <div id="target"></div>
+        <form action="/form">
+            <div class="m-2">
+                <label class="form-label">
+                    Name
+                    <input name="name" class="form-control" />
+                </label>
+            </div>
+            <div class="m-2">
+                <label class="form-label">
+                    City
+                    <input name="city" class="form-control" />
+                </label>
+            </div>
+            <div class="m-2">
+                <label class="form-label">
+                    File
+                    <input name="datafile" type="file" class="form-control" />
+                </label>
+            </div>
+            <div class="m-2">
+                <button class="btn btn-primary" formmethod="get">
+                    Submit (GET)
+                </button>
+                <button class="btn btn-primary" formmethod="post">
+                    Submit (POST)
+                </button>
+                <button
+                    class="btn btn-primary"
+                    formmethod="post"
+                    formenctype="multipart/form-data"
+                >
+                    Submit (POST/MIME)
+                </button>
+            </div>
+        </form>
     </body>
 </html>

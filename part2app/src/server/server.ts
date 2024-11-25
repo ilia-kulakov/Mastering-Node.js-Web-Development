@@ -5,6 +5,7 @@ import httpProxy from 'http-proxy';
 import helmet from 'helmet';
 import { engine } from 'express-handlebars';
 import * as helpers from './template_helpers';
+import { registerFormMiddleware, registerFormRoutes } from './forms';
 
 const port = 5000;
 
@@ -21,6 +22,9 @@ expressApp.set('view engine', 'handlebars');
 
 expressApp.use(helmet());
 expressApp.use(express.json());
+
+registerFormMiddleware(expressApp);
+registerFormRoutes(expressApp);
 
 expressApp.get('/dynamic/:file', (req, res) => {
     res.render(`${req.params.file}.handlebars`, {
