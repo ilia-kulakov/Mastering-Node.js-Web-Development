@@ -1,8 +1,6 @@
 import express, { Express } from 'express';
-import multer from 'multer';
-// import { sanitizeValue } from './sanitize';
-
-const fileMiddleware = multer({ storage: multer.memoryStorage() });
+import { getValidationResults, validate } from './validation';
+import { helpers } from 'handlebars';
 
 export const registerFormMiddleware = (app: Express) => {
     app.use(express.urlencoded({ extended: true }));
@@ -10,43 +8,31 @@ export const registerFormMiddleware = (app: Express) => {
 
 export const registerFormRoutes = (app: Express) => {
     app.get('/form', (req, res) => {
-        for (const key in req.query) {
-            res.write(`${key}: ${req.query[key]}\n`);
+        res.render('age', { helpers: { pass } });
+    });
+
+    app.post(
+        '/form',
+        validate('name').required().minLength(5),
+        validate('age').isInteger(),
+        (req, res) => {
+            const validation = getValidationResults(req);
+            const context = {
+                ...req.body,
+                validation,
+                helpers: { pass },
+            };
+
+            if (validation.valid) {
+                context.nextage = Number.parseInt(req.body.age) + 1;
+            }
+
+            res.render('age', context);
         }
-        res.end();
-    });
+    );
+};
 
-    app.post('/form', fileMiddleware.single('datafile'), (req, res) => {
-        //res.write(`Content-Type: ${req.headers['content-type']}\n`);
-        // if (req.headers['content-type']?.startsWith('multipart/form-data')) {
-        //     req.pipe(res);
-        // } else {
-        //     for (const key in req.body) {
-        //         res.write(`${key}: ${req.body[key]}\n`);
-        //     }
-        //     res.end();
-        // }
-
-        // sanitize mannualy
-        // res.setHeader('Content-Type', 'text/html');
-
-        // for (const key in req.body) {
-        //     res.write(`<div>${key}: ${sanitizeValue(req.body[key])}</div>`);
-        // }
-
-        // if (req.file) {
-        //     res.write(`<div>File: ${req.file.originalname}</div>`);
-        //     res.write(
-        //         `<div>${sanitizeValue(req.file.buffer.toString())}</div>`
-        //     );
-        // }
-
-        // res.end();
-
-        res.render('formData', {
-            ...req.body,
-            file: req.file,
-            fileData: req.file?.buffer.toString(),
-        });
-    });
+const pass = (valid: any, propname: string, test: string) => {
+    let propResult = valid?.results?.[propname];
+    return `display:${!propResult || propResult[test] ? 'none' : 'block'}`;
 };

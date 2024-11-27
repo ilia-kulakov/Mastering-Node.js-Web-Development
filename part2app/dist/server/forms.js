@@ -5,47 +5,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerFormRoutes = exports.registerFormMiddleware = void 0;
 const express_1 = __importDefault(require("express"));
-const multer_1 = __importDefault(require("multer"));
-// import { sanitizeValue } from './sanitize';
-const fileMiddleware = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
+const validation_1 = require("./validation");
 const registerFormMiddleware = (app) => {
     app.use(express_1.default.urlencoded({ extended: true }));
 };
 exports.registerFormMiddleware = registerFormMiddleware;
 const registerFormRoutes = (app) => {
     app.get('/form', (req, res) => {
-        for (const key in req.query) {
-            res.write(`${key}: ${req.query[key]}\n`);
-        }
-        res.end();
+        res.render('age', { helpers: { pass } });
     });
-    app.post('/form', fileMiddleware.single('datafile'), (req, res) => {
-        //res.write(`Content-Type: ${req.headers['content-type']}\n`);
-        // if (req.headers['content-type']?.startsWith('multipart/form-data')) {
-        //     req.pipe(res);
-        // } else {
-        //     for (const key in req.body) {
-        //         res.write(`${key}: ${req.body[key]}\n`);
-        //     }
-        //     res.end();
-        // }
-        // sanitize mannualy
-        // res.setHeader('Content-Type', 'text/html');
-        // for (const key in req.body) {
-        //     res.write(`<div>${key}: ${sanitizeValue(req.body[key])}</div>`);
-        // }
-        // if (req.file) {
-        //     res.write(`<div>File: ${req.file.originalname}</div>`);
-        //     res.write(
-        //         `<div>${sanitizeValue(req.file.buffer.toString())}</div>`
-        //     );
-        // }
-        // res.end();
-        res.render('formData', {
+    app.post('/form', (0, validation_1.validate)('name').required().minLength(5), (0, validation_1.validate)('age').isInteger(), (req, res) => {
+        const validation = (0, validation_1.getValidationResults)(req);
+        const context = {
             ...req.body,
-            file: req.file,
-            fileData: req.file?.buffer.toString(),
-        });
+            validation,
+            helpers: { pass },
+        };
+        if (validation.valid) {
+            context.nextage = Number.parseInt(req.body.age) + 1;
+        }
+        res.render('age', context);
     });
 };
 exports.registerFormRoutes = registerFormRoutes;
+const pass = (valid, propname, test) => {
+    let propResult = valid?.results?.[propname];
+    return `display:${!propResult || propResult[test] ? 'none' : 'block'}`;
+};
