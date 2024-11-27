@@ -11,6 +11,13 @@
             <div
                 class='text-danger'
                 id='err_name_required'
+                style='{{pass validation "name" "required"}}'
+            >
+                Name is required
+            </div>
+            <div
+                class='text-danger'
+                id='err_name_minLength'
                 style='{{pass validation "name" "minLength"}}'
             >
                 Enter at least 5 characters
