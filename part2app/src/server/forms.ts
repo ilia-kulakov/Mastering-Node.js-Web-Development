@@ -1,6 +1,4 @@
 import express, { Express } from 'express';
-import { getValidationResults, validate } from './validation';
-import { helpers } from 'handlebars';
 
 export const registerFormMiddleware = (app: Express) => {
     app.use(express.urlencoded({ extended: true }));
@@ -8,31 +6,17 @@ export const registerFormMiddleware = (app: Express) => {
 
 export const registerFormRoutes = (app: Express) => {
     app.get('/form', (req, res) => {
-        res.render('age', { helpers: { pass } });
+        res.render('age');
     });
 
-    app.post(
-        '/form',
-        validate('name').required().minLength(5),
-        validate('age').isInteger(),
-        (req, res) => {
-            const validation = getValidationResults(req);
-            const context = {
-                ...req.body,
-                validation,
-                helpers: { pass },
-            };
+    app.post('/form', (req, res) => {
+        const nextage =
+            Number.parseInt(req.body.age) + Number.parseInt(req.body.years);
+        const context = {
+            ...req.body,
+            nextage,
+        };
 
-            if (validation.valid) {
-                context.nextage = Number.parseInt(req.body.age) + 1;
-            }
-
-            res.render('age', context);
-        }
-    );
-};
-
-const pass = (valid: any, propname: string, test: string) => {
-    let propResult = valid?.results?.[propname];
-    return `display:${!propResult || propResult[test] ? 'none' : 'block'}`;
+        res.render('age', context);
+    });
 };
