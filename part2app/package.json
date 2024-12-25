@@ -20,6 +20,7 @@
         "http-proxy": "^1.18.1",
         "multer": "^1.4.5-lts.1",
         "part2app": "file:",
+        "sqlite3": "^5.1.6",
         "validator": "^13.11.0"
     },
     "devDependencies": {
