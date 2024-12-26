@@ -3,6 +3,7 @@ import express, { Express } from 'express';
 import httpProxy from 'http-proxy';
 import helmet from 'helmet';
 import { testHandler } from './testHandler';
+import { registerCustomTemplateEngine } from './custom_engine';
 
 const port = 5000;
 
@@ -13,8 +14,16 @@ const proxy = httpProxy.createProxyServer({
     ws: true,
 });
 
+registerCustomTemplateEngine(expressApp);
+expressApp.set('views', 'templates/server');
+
 expressApp.use(helmet());
 expressApp.use(express.json());
+
+expressApp.get('/dynamic/:file', (req, res) => {
+    res.render(`${req.params.file}.custom`, { message: 'Hello template' });
+});
+
 expressApp.post('/test', testHandler);
 expressApp.use(express.static('static'));
 expressApp.use(express.static('node_modules/bootstrap/dist'));
