@@ -1,5 +1,6 @@
 import { readFile } from 'fs';
 import { Express } from 'express';
+import * as features from './custom_features';
 
 const renderTemplate = (
     path: string,
@@ -10,7 +11,10 @@ const renderTemplate = (
         if (err != undefined) {
             callback('Cannot generate content', undefined);
         } else {
-            callback(undefined, parseTemplate(data.toString(), context));
+            callback(
+                undefined,
+                parseTemplate(data.toString(), { ...context, features })
+            );
         }
     });
 };
@@ -21,7 +25,23 @@ const parseTemplate = (template: string, context: any) => {
         .join(';');
     const expr = /{{(.*)}}/gm;
     return template.toString().replaceAll(expr, (match, group) => {
-        return eval(`${ctx};${group}`);
+        const evalFunc = (expression: string) => {
+            return eval(`${ctx};${expression}`);
+        };
+
+        try {
+            if (group.trim()[0] === '@') {
+                group = `features.${group.trim().substring(1)}`;
+                group = group.replace(/\)$/m, ', context, evalFunc)');
+            }
+            let result = evalFunc(group);
+            if (expr.test(result)) {
+                result = parseTemplate(result, context);
+            }
+            return result;
+        } catch (err: any) {
+            return err;
+        }
     });
 };
 
