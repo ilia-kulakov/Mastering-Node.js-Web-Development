@@ -11,5 +11,5 @@ export const increment = (value: any) => {
 };
 
 export const isOdd = (value: any) => {
-    return Number(valueOrZero(value)) % 2 == 0;
+    return Number(valueOrZero(value)) % 2;
 };

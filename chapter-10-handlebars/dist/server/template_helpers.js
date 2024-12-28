@@ -14,6 +14,6 @@ const increment = (value) => {
 };
 exports.increment = increment;
 const isOdd = (value) => {
-    return Number((0, exports.valueOrZero)(value)) % 2 == 0;
+    return Number((0, exports.valueOrZero)(value)) % 2;
 };
 exports.isOdd = isOdd;
