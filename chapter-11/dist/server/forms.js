@@ -18,10 +18,15 @@ const registerFormRoutes = (app) => {
     });
     app.post('/form', (req, res) => {
         res.write(`Content-Type: ${req.headers['content-type']}\n`);
-        for (const key in req.body) {
-            res.write(`${key}: ${req.body[key]}\n`);
+        if (req.headers['content-type']?.startsWith('multipart/form-data')) {
+            req.pipe(res);
         }
-        res.end();
+        else {
+            for (const key in req.body) {
+                res.write(`${key}: ${req.body[key]}\n`);
+            }
+            res.end();
+        }
     });
 };
 exports.registerFormRoutes = registerFormRoutes;
