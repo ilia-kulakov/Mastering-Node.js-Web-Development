@@ -1,4 +1,7 @@
 import express, { Express } from 'express';
+import multer from 'multer';
+
+const fileMiddleware = multer({ storage: multer.memoryStorage() });
 
 export const registerFormMiddleware = (app: Express) => {
     app.use(express.urlencoded({ extended: true }));
@@ -12,16 +15,11 @@ export const registerFormRoutes = (app: Express) => {
         res.end();
     });
 
-    app.post('/form', (req, res) => {
-        res.write(`Content-Type: ${req.headers['content-type']}\n`);
-
-        if (req.headers['content-type']?.startsWith('multipart/form-data')) {
-            req.pipe(res);
-        } else {
-            for (const key in req.body) {
-                res.write(`${key}: ${req.body[key]}\n`);
-            }
-            res.end();
-        }
+    app.post('/form', fileMiddleware.single('datafile'), (req, res) => {
+        res.render('formData', {
+            ...req.body,
+            file: req.file,
+            fileData: req.file?.buffer.toString(),
+        });
     });
 };
