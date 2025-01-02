@@ -5,8 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerFormRoutes = exports.registerFormMiddleware = void 0;
 const express_1 = __importDefault(require("express"));
-const multer_1 = __importDefault(require("multer"));
-const fileMiddleware = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
+const validation_1 = require("./validation");
 const registerFormMiddleware = (app) => {
     app.use(express_1.default.urlencoded({ extended: true }));
 };
@@ -18,7 +17,7 @@ const registerFormRoutes = (app) => {
         }
         res.end();
     });
-    app.post('/form', fileMiddleware.single('datafile'), (req, res) => {
+    app.post('/form', (req, res) => {
         res.render('formData', {
             ...req.body,
             file: req.file,
@@ -26,13 +25,23 @@ const registerFormRoutes = (app) => {
         });
     });
     app.get('/ageform', (req, res) => {
-        res.render('age');
+        res.render('age', { helpers: { pass } });
     });
-    app.post('/ageform', fileMiddleware.single('datafile'), (req, res) => {
-        res.render('age', {
+    app.post('/ageform', (0, validation_1.validate)('name').required().minLength(5), (0, validation_1.validate)('age').isInteger(), (req, res) => {
+        const validation = (0, validation_1.getValidationResults)(req);
+        const context = {
             ...req.body,
-            nextage: Number.parseInt(req.body.age) + 1,
-        });
+            validation,
+            helpers: { pass },
+        };
+        if (validation.valid) {
+            context.nextage = Number.parseInt(req.body.age) + 1;
+        }
+        res.render('age', context);
     });
 };
 exports.registerFormRoutes = registerFormRoutes;
+const pass = (valid, propname, test) => {
+    let propResult = valid?.results?.[propname];
+    return `display:${!propResult || propResult[test] ? 'none' : 'block'}`;
+};
