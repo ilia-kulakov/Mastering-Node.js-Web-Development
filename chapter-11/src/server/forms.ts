@@ -22,4 +22,15 @@ export const registerFormRoutes = (app: Express) => {
             fileData: req.file?.buffer.toString(),
         });
     });
+
+    app.get('/ageform', (req, res) => {
+        res.render('age');
+    });
+
+    app.post('/ageform', fileMiddleware.single('datafile'), (req, res) => {
+        res.render('age', {
+            ...req.body,
+            nextage: Number.parseInt(req.body.age) + 1,
+        });
+    });
 };
