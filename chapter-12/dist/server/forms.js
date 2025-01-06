@@ -5,43 +5,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerFormRoutes = exports.registerFormMiddleware = void 0;
 const express_1 = __importDefault(require("express"));
-const validation_1 = require("./validation");
 const registerFormMiddleware = (app) => {
     app.use(express_1.default.urlencoded({ extended: true }));
 };
 exports.registerFormMiddleware = registerFormMiddleware;
 const registerFormRoutes = (app) => {
     app.get('/form', (req, res) => {
-        for (const key in req.query) {
-            res.write(`${key}: ${req.query[key]}\n`);
-        }
-        res.end();
+        res.render('age');
     });
     app.post('/form', (req, res) => {
-        res.render('formData', {
-            ...req.body,
-            file: req.file,
-            fileData: req.file?.buffer.toString(),
-        });
-    });
-    app.get('/ageform', (req, res) => {
-        res.render('age', { helpers: { pass } });
-    });
-    app.post('/ageform', (0, validation_1.validate)('name').required().minLength(5), (0, validation_1.validate)('age').isInteger(), (req, res) => {
-        const validation = (0, validation_1.getValidationResults)(req);
+        const nextage = Number.parseInt(req.body.age) + Number.parseInt(req.body.years);
         const context = {
             ...req.body,
-            validation,
-            helpers: { pass },
+            nextage,
         };
-        if (validation.valid) {
-            context.nextage = Number.parseInt(req.body.age) + 1;
-        }
         res.render('age', context);
     });
 };
 exports.registerFormRoutes = registerFormRoutes;
-const pass = (valid, propname, test) => {
-    let propResult = valid?.results?.[propname];
-    return `display:${!propResult || propResult[test] ? 'none' : 'block'}`;
-};
