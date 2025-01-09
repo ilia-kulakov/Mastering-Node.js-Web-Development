@@ -1,7 +1,14 @@
 import { readFileSync } from 'fs';
 import { Database } from 'sqlite3';
 import { Repository, Result } from './repository';
-import { queryAllSql, queryByNameSql } from './sql_queries';
+import {
+    queryAllSql,
+    queryByNameSql,
+    insertCalculation,
+    insertPerson,
+    insertResult,
+} from './sql_queries';
+import { TransactionHelper } from './sql_helpers';
 
 export class SqlRepository implements Repository {
     db: Database;
@@ -15,8 +22,21 @@ export class SqlRepository implements Repository {
         });
     }
 
-    saveResults(r: Result): Promise<Number> {
-        throw new Error('Method not implemented');
+    async saveResult(result: Result): Promise<number> {
+        return await new TransactionHelper()
+            .add(insertPerson, { $name: result.name })
+            .add(insertCalculation, {
+                $age: result.age,
+                $years: result.years,
+                $nextage: result.nextage,
+            })
+            .add(insertResult, {
+                $name: result.name,
+                $age: result.age,
+                $years: result.years,
+                $nextage: result.nextage,
+            })
+            .run(this.db);
     }
 
     getAllResults($limit: number): Promise<Result[]> {

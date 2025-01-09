@@ -4,6 +4,7 @@ exports.SqlRepository = void 0;
 const fs_1 = require("fs");
 const sqlite3_1 = require("sqlite3");
 const sql_queries_1 = require("./sql_queries");
+const sql_helpers_1 = require("./sql_helpers");
 class SqlRepository {
     db;
     constructor() {
@@ -14,8 +15,21 @@ class SqlRepository {
             }
         });
     }
-    saveResults(r) {
-        throw new Error('Method not implemented');
+    async saveResult(result) {
+        return await new sql_helpers_1.TransactionHelper()
+            .add(sql_queries_1.insertPerson, { $name: result.name })
+            .add(sql_queries_1.insertCalculation, {
+            $age: result.age,
+            $years: result.years,
+            $nextage: result.nextage,
+        })
+            .add(sql_queries_1.insertResult, {
+            $name: result.name,
+            $age: result.age,
+            $years: result.years,
+            $nextage: result.nextage,
+        })
+            .run(this.db);
     }
     getAllResults($limit) {
         return this.executeQuery(sql_queries_1.queryAllSql, { $limit });

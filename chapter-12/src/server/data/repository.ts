@@ -7,7 +7,7 @@ export interface Result {
 }
 
 export interface Repository {
-    saveResults(r: Result): Promise<Number>;
+    saveResult(r: Result): Promise<number>;
     getAllResults(limit: number): Promise<Result[]>;
     getResultsByName(name: string, limit: number): Promise<Result[]>;
 }
