@@ -6,39 +6,40 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerFormRoutes = exports.registerFormMiddleware = void 0;
 const express_1 = __importDefault(require("express"));
 const data_1 = __importDefault(require("./data"));
-const cookies_1 = require("./cookies");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const middleware_1 = require("./session/middleware");
+const session_helpers_1 = require("./session/session_helpers");
 const rowLimit = 10;
 const registerFormMiddleware = (app) => {
     app.use(express_1.default.urlencoded({ extended: true }));
     app.use((0, cookie_parser_1.default)('mysecret'));
+    app.use((0, middleware_1.customSessionMiddleware)());
 };
 exports.registerFormMiddleware = registerFormMiddleware;
 const registerFormRoutes = (app) => {
     app.get('/form', async (req, res) => {
         res.render('age', {
             history: await data_1.default.getAllResults(rowLimit),
-            personalHistory: (0, cookies_1.getJsonCookie)(req, 'personalHistory'),
+            personalHistory: (0, session_helpers_1.getSession)(req).data.personalHistory,
         });
     });
     app.post('/form', async (req, res) => {
         const nextage = Number.parseInt(req.body.age) + Number.parseInt(req.body.years);
         await data_1.default.saveResult({ ...req.body, nextage });
-        let personalHistory = [
+        req.session.data.personalHistory = [
             {
                 name: req.body.name,
                 age: req.body.age,
                 years: req.body.years,
                 nextage,
             },
-            ...((0, cookies_1.getJsonCookie)(req, 'personalHistory') || []),
+            ...(req.session.data.personalHistory || []),
         ].splice(0, 5);
-        (0, cookies_1.setJsonCookie)(res, 'personalHistory', personalHistory);
         const context = {
             ...req.body,
             nextage,
             history: await data_1.default.getAllResults(rowLimit),
-            personalHistory,
+            personalHistory: req.session.data.personalHistory,
         };
         res.render('age', context);
     });
